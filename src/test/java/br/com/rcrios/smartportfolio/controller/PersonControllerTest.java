@@ -1,0 +1,53 @@
+package br.com.rcrios.smartportfolio.controller;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import br.com.rcrios.smartportfolio.model.Person;
+import br.com.rcrios.smartportfolio.model.PersonTest;
+import br.com.rcrios.smartportfolio.repository.PersonRepository;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest
+public class PersonControllerTest {
+
+  @Autowired
+  PersonRepository repo;
+
+  @Test
+  public void testSave() {
+    Person p = PersonTest.factory();
+
+    PersonController controller = new PersonController(repo);
+
+    ResponseEntity<Object> response = controller.save(p);
+    Person savedP = (Person) response.getBody();
+
+    repo.deleteAll();
+
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertNotNull(savedP);
+    assertNotNull(savedP.getId());
+  }
+
+  @Test
+  public void saveInvalidPersonShouldFail() {
+    Person p = new Person();
+
+    PersonController controller = new PersonController(repo);
+
+    ResponseEntity<Object> response = controller.save(p);
+
+    assertEquals(HttpStatus.PRECONDITION_FAILED, response.getStatusCode());
+    assertTrue(response.getBody().toString().contains("Person name cannot be null or empty"));
+  }
+}
