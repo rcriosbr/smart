@@ -4,11 +4,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public final class Utils {
-  private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
 
   public static final MathContext DEFAULT_MATHCONTEXT = MathContext.DECIMAL64;
 
