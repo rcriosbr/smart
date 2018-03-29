@@ -28,17 +28,15 @@ public class PortfolioController {
 
   @PostMapping
   public ResponseEntity<Object> save(@RequestBody Portfolio portfolio) {
-    LOGGER.debug("Saving {}", portfolio);
+    LOGGER.debug("RequestBody: {}", portfolio);
 
     try {
-      // Portfolio.validate(portfolio);
+      Portfolio savedPortfolio = repo.save(portfolio);
+      return ResponseEntity.ok(savedPortfolio);
     } catch (SmartPortfolioRuntimeException e) {
       String msg = "Error number: " + System.currentTimeMillis();
       LOGGER.warn(msg, e);
       return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(msg + ". " + e.getMessage());
     }
-
-    Portfolio savedPortfolio = repo.save(portfolio);
-    return ResponseEntity.ok(savedPortfolio);
   }
 }

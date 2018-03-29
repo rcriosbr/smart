@@ -45,21 +45,35 @@ public class PortfolioControllerTest {
 
   @Test
   public void testSave() {
+    PortfolioController controller = new PortfolioController(repo);
+
+    Portfolio master = new Portfolio();
+    master.setName("MASTER");
+    master.setNickname("JUNIT");
+    master.setQuoteValueDate(new Date());
+    master.setQuoteValue(Utils.nrFactory(100));
+    master.setQuoteValueBenchmark(Utils.nrFactory(100));
+    master.setQuotes(BigDecimal.ZERO);
+    master.setValue(BigDecimal.ZERO);
+
+    ResponseEntity<Object> response = controller.save(master);
+    master = (Portfolio) controller.save(master).getBody();
+
     List<Fund> funds = new ArrayList<>();
     funds.add(this.fundFactory());
 
     Portfolio p = new Portfolio();
-    p.setName("JUNIT PORTFOLIO");
-    p.setNickname("JUNIT");
+    p.setName("RENDA FIXA");
+    p.setNickname("JUNIT RF");
     p.setFunds(funds);
+    p.setMaster(master);
     p.setQuoteValueDate(new Date());
     p.setQuoteValue(Utils.nrFactory(100));
     p.setQuoteValueBenchmark(Utils.nrFactory(100));
     p.setQuotes(BigDecimal.ZERO);
     p.setValue(BigDecimal.ZERO);
 
-    PortfolioController controller = new PortfolioController(repo);
-    ResponseEntity<Object> response = controller.save(p);
+    response = controller.save(p);
 
     this.truncateDatabase();
 
@@ -68,7 +82,6 @@ public class PortfolioControllerTest {
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertNotNull(savedP);
     assertNotNull(savedP.getId());
-
   }
 
   private Fund fundFactory() {
