@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,6 +13,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.springframework.lang.NonNull;
 
@@ -34,6 +37,7 @@ public class Portfolio implements Serializable {
   @OneToMany
   private List<Fund> funds;
 
+  @Temporal(TemporalType.DATE)
   private Date quoteValueDate;
 
   @Column(precision = 16, scale = 6, nullable = false)
@@ -130,7 +134,7 @@ public class Portfolio implements Serializable {
 
   @Override
   public String toString() {
-    return String.format("Portfolio [id=%s, name=%s, nickname=%s, master=%s, funds=%s, quoteValueDate=%s, quotes=%s, quoteValue=%s, value=%s, quoteValueBenchmark=%s]", id, name,
-        nickname, master, funds, quoteValueDate, quotes, quoteValue, value, quoteValueBenchmark);
+    return String.format("Portfolio [id=%s, name=%s, nickname=%s, master.id=%s, funds=%s, quoteValueDate=%s, quotes=%s, quoteValue=%s, value=%s, quoteValueBenchmark=%s]", id, name,
+        nickname, Objects.toString(master), funds, quoteValueDate, quotes, quoteValue, value, quoteValueBenchmark);
   }
 }

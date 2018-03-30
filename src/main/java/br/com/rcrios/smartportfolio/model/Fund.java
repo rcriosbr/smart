@@ -1,12 +1,18 @@
 package br.com.rcrios.smartportfolio.model;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.Objects;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import br.com.rcrios.smartportfolio.SmartPortfolioRuntimeException;
 
@@ -27,6 +33,15 @@ public class Fund implements Serializable {
 
   @ManyToOne
   private Person trustee;
+
+  @Column(precision = 16, scale = 6, nullable = false)
+  private BigDecimal quotes;
+
+  @Temporal(TemporalType.DATE)
+  private Date lastUpdated;
+
+  @Column(precision = 16, scale = 6, nullable = false)
+  private BigDecimal value;
 
   /**
    * Default constructor
@@ -92,8 +107,33 @@ public class Fund implements Serializable {
     this.trustee = trustee;
   }
 
+  public BigDecimal getQuotes() {
+    return quotes;
+  }
+
+  public void setQuotes(BigDecimal quotes) {
+    this.quotes = quotes;
+  }
+
+  public BigDecimal getValue() {
+    return value;
+  }
+
+  public void setValue(BigDecimal value) {
+    this.value = value;
+  }
+
+  public Date getLastUpdated() {
+    return lastUpdated;
+  }
+
+  public void setLastUpdated(Date lastUpdated) {
+    this.lastUpdated = lastUpdated;
+  }
+
   @Override
   public String toString() {
-    return String.format("Fund [id=%s, fund=%s, manager=%s, trustee=%s]", id, fund, manager, trustee);
+    return String.format("Fund [id=%s, fund.id=%s, manager.id=%s, trustee.id=%s, quotes=%s, lastUpdated=%s, value=%s]", id, Objects.toString(fund), Objects.toString(manager),
+        Objects.toString(trustee), quotes, lastUpdated, value);
   }
 }

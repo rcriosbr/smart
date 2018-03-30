@@ -3,6 +3,7 @@ package br.com.rcrios.smartportfolio.model;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,6 +11,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import br.com.rcrios.smartportfolio.SmartPortfolioRuntimeException;
 
@@ -28,6 +31,7 @@ public class FundQuotes implements Serializable {
   @Column(precision = 16, scale = 6, nullable = false)
   private BigDecimal quoteValue;
 
+  @Temporal(TemporalType.DATE)
   @Column(nullable = false)
   private Date quoteDate;
 
@@ -87,6 +91,6 @@ public class FundQuotes implements Serializable {
 
   @Override
   public String toString() {
-    return String.format("FundQuotesHistory [id=%s, fund=%s, quoteValue=%s, quoteDate=%s]", id, fund, quoteValue, quoteDate);
+    return String.format("FundQuotesHistory [id=%s, fund.id=%s, quoteValue=%s, quoteDate=%s]", id, Objects.toString(fund), quoteValue, quoteDate);
   }
 }

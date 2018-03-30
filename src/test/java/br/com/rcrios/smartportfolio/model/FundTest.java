@@ -2,6 +2,9 @@ package br.com.rcrios.smartportfolio.model;
 
 import static org.junit.Assert.fail;
 
+import java.math.BigDecimal;
+import java.util.Date;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -35,6 +38,9 @@ public class FundTest {
     f.setFund(PersonTest.factory());
     f.setManager(PersonTest.factory());
     f.setTrustee(PersonTest.factory());
+    f.setLastUpdated(new Date());
+    f.setQuotes(BigDecimal.ZERO);
+    f.setValue(BigDecimal.ZERO);
 
     return f;
   }

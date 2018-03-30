@@ -9,6 +9,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import br.com.rcrios.smartportfolio.SmartPortfolioRuntimeException;
 
 @Entity
 public class Deal {
@@ -29,6 +33,7 @@ public class Deal {
   /**
    * Date when the deal was done.
    */
+  @Temporal(TemporalType.DATE)
   private Date date;
 
   /**
@@ -44,12 +49,6 @@ public class Deal {
   private BigDecimal quotes;
 
   /**
-   * Value of a single quote. Precision of 16 and scale of 6.
-   */
-  @Column(precision = 16, scale = 6)
-  private BigDecimal quoteValue;
-
-  /**
    * Transaction type, such as BUY, SELL, etc.
    */
   private TransactionType type;
@@ -58,6 +57,24 @@ public class Deal {
    * Comments that describe the deal.
    */
   private String comments;
+
+  public static void validate(Deal toBeValidated) {
+    if (toBeValidated == null) {
+      throw new SmartPortfolioRuntimeException("Deal object cannot be null.");
+    }
+
+    if (toBeValidated.getDate() == null) {
+      throw new SmartPortfolioRuntimeException("Deal date cannot be null.");
+    }
+
+    if (toBeValidated.getType() == null) {
+      throw new SmartPortfolioRuntimeException("Deal type cannot be null.");
+    }
+
+    if (toBeValidated.getValue() == null && toBeValidated.getQuotes() == null) {
+      throw new SmartPortfolioRuntimeException("Deal must have a value OR quotes.");
+    }
+  }
 
   public Long getId() {
     return id;
@@ -99,14 +116,6 @@ public class Deal {
     this.quotes = quotes;
   }
 
-  public BigDecimal getQuoteValue() {
-    return quoteValue;
-  }
-
-  public void setQuoteValue(BigDecimal quoteValue) {
-    this.quoteValue = quoteValue;
-  }
-
   public TransactionType getType() {
     return type;
   }
@@ -125,6 +134,6 @@ public class Deal {
 
   @Override
   public String toString() {
-    return String.format("Deal [id=%s, fund=%s, date=%s, value=%s, quotes=%s, quoteValue=%s, type=%s, comments=%s]", id, fund, date, value, quotes, quoteValue, type, comments);
+    return String.format("Deal [id=%s, fund=%s, date=%s, value=%s, quotes=%s, type=%s, comments=%s]", id, fund, date, value, quotes, type, comments);
   }
 }
