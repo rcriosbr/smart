@@ -10,6 +10,7 @@ import br.com.rcrios.smartportfolio.Utils;
 import br.com.rcrios.smartportfolio.model.Deal;
 import br.com.rcrios.smartportfolio.model.Fund;
 import br.com.rcrios.smartportfolio.model.FundQuotes;
+import br.com.rcrios.smartportfolio.model.TransactionType;
 
 public class FundRepositoryImpl implements FundRepositoryCustom {
   private static final Logger LOGGER = LoggerFactory.getLogger(FundRepositoryImpl.class);
@@ -34,13 +35,20 @@ public class FundRepositoryImpl implements FundRepositoryCustom {
 
   @Override
   public Fund update(Deal deal, FundQuotes quote) {
-    Fund fund = deal.getFund();
+    TransactionType updateType = null;
 
-    LOGGER.debug("Deal {} started the updating of fund {} using {}", deal.getId(), fund.getId(), quote);
+    Fund fund = null;
+    if (deal == null) {
+      fund = quote.getFund();
+      updateType = TransactionType.UPDATE;
+    } else {
+      fund = deal.getFund();
+      updateType = deal.getType();
+    }
 
     BigDecimal newQuotesQuantity = fund.getQuotes();
 
-    switch (deal.getType()) {
+    switch (updateType) {
     case BUY:
       newQuotesQuantity = fund.getQuotes().add(deal.getQuotes(), Utils.DEFAULT_MATHCONTEXT);
       break;

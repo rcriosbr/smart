@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -84,18 +83,24 @@ public class PortfolioControllerTest {
     p.setValue(BigDecimal.ZERO);
 
     response = controller.save(p);
-
-    this.dealFactory(funds.get(0));
-
-    this.truncateDatabase();
-
     Portfolio savedP = (Portfolio) response.getBody();
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertNotNull(savedP);
     assertNotNull(savedP.getId());
-    assertTrue(this.validatePortfolioValue(savedP));
 
+    // Fires portfolio update
+    Deal deal = this.dealFactory(funds.get(0));
+
+    Portfolio updatedPortfolio = repo.findById(savedP.getId()).get();
+    assertTrue(updatedPortfolio.getQuotes().compareTo(Utils.nrFactory(10)) == 0);
+    assertTrue(updatedPortfolio.getValue().compareTo(deal.getValue()) == 0);
+
+    Portfolio updatedMasterPortfolio = repo.findById(savedP.getMaster().getId()).get();
+    assertTrue(updatedMasterPortfolio.getQuotes().compareTo(Utils.nrFactory(10)) == 0);
+    assertTrue(updatedMasterPortfolio.getValue().compareTo(deal.getValue()) == 0);
+
+    this.truncateDatabase();
   }
 
   private Deal dealFactory(Fund fund) {
@@ -141,18 +146,5 @@ public class PortfolioControllerTest {
     drepo.deleteAll();
     frepo.deleteAll();
     prepo.deleteAll();
-  }
-
-  private boolean validatePortfolioValue(Portfolio portfolio) {
-    BigDecimal sum = BigDecimal.ZERO;
-    for (Fund fund : portfolio.getFunds()) {
-      sum = sum.add(fund.getValue(), Utils.DEFAULT_MATHCONTEXT);
-    }
-
-    if (sum.setScale(2, RoundingMode.HALF_DOWN).compareTo(portfolio.getValue().setScale(2, RoundingMode.HALF_DOWN)) != 0) {
-      return false;
-    }
-
-    return true;
   }
 }

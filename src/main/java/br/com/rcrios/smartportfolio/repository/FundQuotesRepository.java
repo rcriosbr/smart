@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import br.com.rcrios.smartportfolio.model.FundQuotes;
 
 @Repository
-public interface FundQuotesRepository extends JpaRepository<FundQuotes, Long> {
+public interface FundQuotesRepository extends JpaRepository<FundQuotes, Long>, FundQuotesRepositoryCustom {
 
   public Optional<FundQuotes> findByFundIdAndQuoteDate(Long fundId, Date quoteDate);
 }

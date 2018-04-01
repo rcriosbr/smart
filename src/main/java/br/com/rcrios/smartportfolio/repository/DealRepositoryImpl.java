@@ -49,6 +49,7 @@ public class DealRepositoryImpl implements DealRepositoryCustom {
     LOGGER.debug("Saving {}", deal);
     Deal savedDeal = repo.saveAndFlush(deal);
 
+    LOGGER.debug("Deal {} started the updating of fund {} using {}", savedDeal.getId(), savedDeal.getFund().getId(), quote);
     Fund fund = frepo.update(savedDeal, quote);
     savedDeal.setFund(fund);
 
