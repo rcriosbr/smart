@@ -25,9 +25,9 @@ public class PersonControllerTest {
 
   @Test
   public void testSave() {
-    Person p = PersonTest.factory();
-
     PersonController controller = new PersonController(repo);
+
+    Person p = PersonTest.factory();
 
     ResponseEntity<Object> response = controller.save(p);
     Person savedP = (Person) response.getBody();
@@ -41,10 +41,9 @@ public class PersonControllerTest {
 
   @Test
   public void saveInvalidPersonShouldFail() {
-    Person p = new Person();
-
     PersonController controller = new PersonController(repo);
 
+    Person p = new Person();
     ResponseEntity<Object> response = controller.save(p);
 
     assertEquals(HttpStatus.PRECONDITION_FAILED, response.getStatusCode());

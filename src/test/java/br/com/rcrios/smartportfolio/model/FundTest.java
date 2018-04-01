@@ -35,9 +35,6 @@ public class FundTest {
 
   public static Fund factory() {
     Fund f = new Fund();
-    f.setFund(PersonTest.factory());
-    f.setManager(PersonTest.factory());
-    f.setTrustee(PersonTest.factory());
     f.setLastUpdated(new Date());
     f.setQuotes(BigDecimal.ZERO);
     f.setValue(BigDecimal.ZERO);

@@ -3,7 +3,6 @@ package br.com.rcrios.smartportfolio.model;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -133,7 +132,7 @@ public class Fund implements Serializable {
 
   @Override
   public String toString() {
-    return String.format("Fund [id=%s, fund.id=%s, manager.id=%s, trustee.id=%s, quotes=%s, lastUpdated=%s, value=%s]", id, Objects.toString(fund), Objects.toString(manager),
-        Objects.toString(trustee), quotes, lastUpdated, value);
+    return String.format("Fund [id=%s, fund.id=%s, manager.id=%s, trustee.id=%s, quotes=%s, lastUpdated=%s, value=%s]", id, fund != null ? fund.getId() : null,
+        manager != null ? manager.getId() : null, trustee != null ? trustee.getId() : null, quotes, lastUpdated, value);
   }
 }

@@ -1,11 +1,12 @@
 package br.com.rcrios.smartportfolio.model;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
+
+import br.com.rcrios.smartportfolio.Utils;
 
 public class FundQuotesTest {
 
@@ -18,7 +19,7 @@ public class FundQuotesTest {
 
       FundQuotes fq = new FundQuotes();
       fq.setQuoteDate(calendar.getTime());
-      fq.setQuoteValue(BigDecimal.ONE.add(new BigDecimal(i / 10.0), MathContext.DECIMAL64));
+      fq.setQuoteValue(BigDecimal.ONE.add(new BigDecimal(i / 10.0), Utils.DEFAULT_MATHCONTEXT));
 
       result.add(fq);
     }

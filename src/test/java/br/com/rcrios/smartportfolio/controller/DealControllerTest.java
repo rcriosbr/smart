@@ -1,5 +1,9 @@
 package br.com.rcrios.smartportfolio.controller;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -15,6 +19,8 @@ import br.com.rcrios.smartportfolio.model.Fund;
 import br.com.rcrios.smartportfolio.model.FundQuotes;
 import br.com.rcrios.smartportfolio.model.FundQuotesTest;
 import br.com.rcrios.smartportfolio.model.FundTest;
+import br.com.rcrios.smartportfolio.model.Person;
+import br.com.rcrios.smartportfolio.model.PersonTest;
 import br.com.rcrios.smartportfolio.model.TransactionType;
 import br.com.rcrios.smartportfolio.repository.DealRepository;
 import br.com.rcrios.smartportfolio.repository.FundQuotesRepository;
@@ -33,13 +39,16 @@ public class DealControllerTest {
   PortfolioRepository porepo;
 
   @Autowired
-  FundQuotesRepository fqrepo;
-
-  @Autowired
   FundRepository frepo;
 
   @Autowired
   PersonRepository perepo;
+
+  @Autowired
+  FundQuotesRepository fqrepo;
+
+  @Autowired
+  PersonRepository prepo;
 
   @Test
   public void testSave() {
@@ -53,22 +62,35 @@ public class DealControllerTest {
 
     Deal savedDeal = repo.save(deal);
 
-    System.out.println();
-    System.out.println(savedDeal);
+    assertNotNull(savedDeal);
+    assertNotNull(savedDeal.getId());
+    assertTrue(savedDeal.getQuotes().compareTo(Utils.nrFactory(1000)) == 0);
+
+    assertTrue(savedDeal.getFund().getQuotes().compareTo(Utils.nrFactory(1000)) == 0);
+    assertTrue(savedDeal.getFund().getValue().compareTo(Utils.nrFactory(1000)) == 0);
+
+    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
+
+    assertTrue(sdf.format(savedDeal.getFund().getLastUpdated()).equals(sdf.format(savedDeal.getDate())));
 
     this.truncateDatabase();
   }
 
   private Fund fundFactory() {
-    FundController controller = new FundController(frepo);
+    Person pfund = prepo.save(PersonTest.factory());
+    Person pmanager = prepo.save(PersonTest.factory());
+    Person ptrustee = prepo.save(PersonTest.factory());
 
-    Fund fund = FundTest.factory();
-    this.saveInnerObjects(fund);
-    fund = (Fund) controller.save(fund).getBody();
+    Fund f = FundTest.factory();
+    f.setFund(pfund);
+    f.setManager(pmanager);
+    f.setTrustee(ptrustee);
 
-    this.populateFund(fund);
+    f = frepo.save(f);
 
-    return fund;
+    this.populateFund(f);
+
+    return f;
   }
 
   private void populateFund(Fund fund) {
@@ -79,13 +101,6 @@ public class DealControllerTest {
       fundQuotes.setFund(fund);
       controller.save(fundQuotes);
     }
-  }
-
-  private void saveInnerObjects(Fund fund) {
-    PersonController controller = new PersonController(perepo);
-    controller.save(fund.getFund());
-    controller.save(fund.getManager());
-    controller.save(fund.getTrustee());
   }
 
   private void truncateDatabase() {

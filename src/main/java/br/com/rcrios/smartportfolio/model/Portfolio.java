@@ -4,15 +4,15 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -31,10 +31,10 @@ public class Portfolio implements Serializable {
   private String name;
   private String nickname;
 
-  @OneToOne
+  @ManyToOne
   private Portfolio master;
 
-  @OneToMany
+  @OneToMany(fetch = FetchType.EAGER)
   private List<Fund> funds;
 
   @Temporal(TemporalType.DATE)
@@ -135,6 +135,6 @@ public class Portfolio implements Serializable {
   @Override
   public String toString() {
     return String.format("Portfolio [id=%s, name=%s, nickname=%s, master.id=%s, funds=%s, quoteValueDate=%s, quotes=%s, quoteValue=%s, value=%s, quoteValueBenchmark=%s]", id, name,
-        nickname, Objects.toString(master), funds, quoteValueDate, quotes, quoteValue, value, quoteValueBenchmark);
+        nickname, master != null ? master.getId() : null, funds, quoteValueDate, quotes, quoteValue, value, quoteValueBenchmark);
   }
 }

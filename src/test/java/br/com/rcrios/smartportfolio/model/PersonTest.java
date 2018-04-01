@@ -72,7 +72,7 @@ public class PersonTest {
     long tag = System.nanoTime();
 
     Person person = new Person();
-    person.setName("NAME");
+    person.setName("NAME_" + tag);
     person.setNationalTaxPayerId(String.valueOf(tag));
     person.setNickname("NICKNAME");
     person.setType(PersonType.LEGAL);

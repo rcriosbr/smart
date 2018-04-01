@@ -2,8 +2,10 @@ package br.com.rcrios.smartportfolio.controller;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -17,11 +19,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import br.com.rcrios.smartportfolio.Utils;
+import br.com.rcrios.smartportfolio.model.Deal;
 import br.com.rcrios.smartportfolio.model.Fund;
 import br.com.rcrios.smartportfolio.model.FundQuotes;
 import br.com.rcrios.smartportfolio.model.FundQuotesTest;
 import br.com.rcrios.smartportfolio.model.FundTest;
+import br.com.rcrios.smartportfolio.model.Person;
+import br.com.rcrios.smartportfolio.model.PersonTest;
 import br.com.rcrios.smartportfolio.model.Portfolio;
+import br.com.rcrios.smartportfolio.model.TransactionType;
+import br.com.rcrios.smartportfolio.repository.DealRepository;
 import br.com.rcrios.smartportfolio.repository.FundQuotesRepository;
 import br.com.rcrios.smartportfolio.repository.FundRepository;
 import br.com.rcrios.smartportfolio.repository.PersonRepository;
@@ -43,6 +50,9 @@ public class PortfolioControllerTest {
   @Autowired
   PersonRepository prepo;
 
+  @Autowired
+  DealRepository drepo;
+
   @Test
   public void testSave() {
     PortfolioController controller = new PortfolioController(repo);
@@ -57,7 +67,7 @@ public class PortfolioControllerTest {
     master.setValue(BigDecimal.ZERO);
 
     ResponseEntity<Object> response = controller.save(master);
-    master = (Portfolio) controller.save(master).getBody();
+    master = (Portfolio) response.getBody();
 
     List<Fund> funds = new ArrayList<>();
     funds.add(this.fundFactory());
@@ -75,6 +85,8 @@ public class PortfolioControllerTest {
 
     response = controller.save(p);
 
+    this.dealFactory(funds.get(0));
+
     this.truncateDatabase();
 
     Portfolio savedP = (Portfolio) response.getBody();
@@ -82,18 +94,35 @@ public class PortfolioControllerTest {
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertNotNull(savedP);
     assertNotNull(savedP.getId());
+    assertTrue(this.validatePortfolioValue(savedP));
+
+  }
+
+  private Deal dealFactory(Fund fund) {
+    Deal deal = new Deal();
+    deal.setFund(fund);
+    deal.setType(TransactionType.BUY);
+    deal.setDate(new Date());
+    deal.setValue(Utils.nrFactory(1000));
+
+    return drepo.save(deal);
   }
 
   private Fund fundFactory() {
-    FundController controller = new FundController(frepo);
+    Person pfund = prepo.save(PersonTest.factory());
+    Person pmanager = prepo.save(PersonTest.factory());
+    Person ptrustee = prepo.save(PersonTest.factory());
 
-    Fund fund = FundTest.factory();
-    this.saveInnerObjects(fund);
-    fund = (Fund) controller.save(fund).getBody();
+    Fund f = FundTest.factory();
+    f.setFund(pfund);
+    f.setManager(pmanager);
+    f.setTrustee(ptrustee);
 
-    this.populateFund(fund);
+    f = frepo.save(f);
 
-    return fund;
+    this.populateFund(f);
+
+    return f;
   }
 
   private void populateFund(Fund fund) {
@@ -106,17 +135,24 @@ public class PortfolioControllerTest {
     }
   }
 
-  private void saveInnerObjects(Fund fund) {
-    PersonController controller = new PersonController(prepo);
-    controller.save(fund.getFund());
-    controller.save(fund.getManager());
-    controller.save(fund.getTrustee());
-  }
-
   private void truncateDatabase() {
-    fqrepo.deleteAll();
     repo.deleteAll();
+    fqrepo.deleteAll();
+    drepo.deleteAll();
     frepo.deleteAll();
     prepo.deleteAll();
+  }
+
+  private boolean validatePortfolioValue(Portfolio portfolio) {
+    BigDecimal sum = BigDecimal.ZERO;
+    for (Fund fund : portfolio.getFunds()) {
+      sum = sum.add(fund.getValue(), Utils.DEFAULT_MATHCONTEXT);
+    }
+
+    if (sum.setScale(2, RoundingMode.HALF_DOWN).compareTo(portfolio.getValue().setScale(2, RoundingMode.HALF_DOWN)) != 0) {
+      return false;
+    }
+
+    return true;
   }
 }

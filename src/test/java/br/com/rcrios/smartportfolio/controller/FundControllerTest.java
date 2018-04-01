@@ -3,6 +3,8 @@ package br.com.rcrios.smartportfolio.controller;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.List;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +14,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import br.com.rcrios.smartportfolio.model.Fund;
+import br.com.rcrios.smartportfolio.model.FundQuotes;
+import br.com.rcrios.smartportfolio.model.FundQuotesTest;
 import br.com.rcrios.smartportfolio.model.FundTest;
+import br.com.rcrios.smartportfolio.model.Person;
+import br.com.rcrios.smartportfolio.model.PersonTest;
+import br.com.rcrios.smartportfolio.repository.FundQuotesRepository;
 import br.com.rcrios.smartportfolio.repository.FundRepository;
 import br.com.rcrios.smartportfolio.repository.PersonRepository;
 
@@ -24,33 +31,54 @@ public class FundControllerTest {
   FundRepository repo;
 
   @Autowired
+  FundQuotesRepository fqrepo;
+
+  @Autowired
   PersonRepository prepo;
 
   @Test
   public void testSave() {
-    Fund f = FundTest.factory();
-    this.saveInnerObjects(f);
-
     FundController controller = new FundController(repo);
 
+    Fund f = this.factory();
     ResponseEntity<Object> response = controller.save(f);
+    this.populateFund(f);
+
     Fund savedF = (Fund) response.getBody();
 
-    repo.deleteAll();
-    this.resetPersonRepository();
+    this.truncateRepositories();
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertNotNull(savedF);
     assertNotNull(savedF.getId());
   }
 
-  private void saveInnerObjects(Fund fund) {
-    prepo.save(fund.getFund());
-    prepo.save(fund.getManager());
-    prepo.save(fund.getTrustee());
+  private Fund factory() {
+    Person pfund = prepo.save(PersonTest.factory());
+    Person pmanager = prepo.save(PersonTest.factory());
+    Person ptrustee = prepo.save(PersonTest.factory());
+
+    Fund f = FundTest.factory();
+    f.setFund(pfund);
+    f.setManager(pmanager);
+    f.setTrustee(ptrustee);
+
+    return f;
   }
 
-  private void resetPersonRepository() {
+  private void populateFund(Fund fund) {
+    FundQuotesController controller = new FundQuotesController(fqrepo);
+
+    List<FundQuotes> quotes = FundQuotesTest.factory();
+    for (FundQuotes fundQuotes : quotes) {
+      fundQuotes.setFund(fund);
+      controller.save(fundQuotes);
+    }
+  }
+
+  private void truncateRepositories() {
+    fqrepo.deleteAll();
+    repo.deleteAll();
     prepo.deleteAll();
   }
 }

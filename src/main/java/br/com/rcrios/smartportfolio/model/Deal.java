@@ -134,6 +134,7 @@ public class Deal {
 
   @Override
   public String toString() {
-    return String.format("Deal [id=%s, fund=%s, date=%s, value=%s, quotes=%s, type=%s, comments=%s]", id, fund, date, value, quotes, type, comments);
+    return String.format("Deal [id=%s, fund.id=%s, date=%s, value=%s, quotes=%s, type=%s, comments=%s]", id, fund != null ? fund.getId() : null, date, value, quotes, type,
+        comments);
   }
 }

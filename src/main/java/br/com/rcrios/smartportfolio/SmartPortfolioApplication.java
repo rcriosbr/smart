@@ -4,9 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SmartProtfolioApplication {
+public class SmartPortfolioApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SmartProtfolioApplication.class, args);
+		SpringApplication.run(SmartPortfolioApplication.class, args);
 	}
 }

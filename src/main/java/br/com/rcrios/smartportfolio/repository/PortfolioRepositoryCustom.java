@@ -1,5 +1,9 @@
 package br.com.rcrios.smartportfolio.repository;
 
+import java.util.List;
+
+import br.com.rcrios.smartportfolio.model.Deal;
+import br.com.rcrios.smartportfolio.model.Fund;
 import br.com.rcrios.smartportfolio.model.Portfolio;
 
 /**
@@ -18,4 +22,6 @@ public interface PortfolioRepositoryCustom {
    * @return The entity saved by the repository.
    */
   Portfolio save(Portfolio portfolio);
+
+  List<Portfolio> update(Fund fund, Deal deal);
 }

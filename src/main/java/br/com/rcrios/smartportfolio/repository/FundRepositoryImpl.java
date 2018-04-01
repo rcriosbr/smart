@@ -17,6 +17,21 @@ public class FundRepositoryImpl implements FundRepositoryCustom {
   @Autowired
   FundRepository repo;
 
+  @Autowired
+  PortfolioRepository prepo;
+
+  private Deal deal;
+
+  @Override
+  public Fund save(Fund fund) {
+    LOGGER.debug("Saving {}", fund);
+    Fund savedFund = repo.saveAndFlush(fund);
+
+    prepo.update(savedFund, this.deal);
+
+    return savedFund;
+  }
+
   @Override
   public Fund update(Deal deal, FundQuotes quote) {
     Fund fund = deal.getFund();
@@ -40,7 +55,9 @@ public class FundRepositoryImpl implements FundRepositoryCustom {
     fund.setQuotes(newQuotesQuantity);
     fund.setValue(fund.getQuotes().multiply(quote.getQuoteValue(), Utils.DEFAULT_MATHCONTEXT));
 
-    LOGGER.debug("Fund will be updated with: quotes={}; quote value={}; quote date={}", fund.getQuotes(), fund.getLastUpdated());
+    this.deal = deal;
+
+    LOGGER.debug("Fund will be updated with: quotes={}; quote value={}; quote date={}", fund.getQuotes(), quote.getQuoteValue(), quote.getQuoteDate());
 
     return repo.save(fund);
   }

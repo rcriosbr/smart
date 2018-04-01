@@ -3,7 +3,6 @@ package br.com.rcrios.smartportfolio.model;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -91,6 +90,6 @@ public class FundQuotes implements Serializable {
 
   @Override
   public String toString() {
-    return String.format("FundQuotesHistory [id=%s, fund.id=%s, quoteValue=%s, quoteDate=%s]", id, Objects.toString(fund), quoteValue, quoteDate);
+    return String.format("FundQuotesHistory [id=%s, fund.id=%s, quoteValue=%s, quoteDate=%s]", id, fund != null ? fund.getId() : null, quoteValue, quoteDate);
   }
 }
