@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -42,7 +43,15 @@ public class PersonController {
       return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(msg + ". " + e.getMessage());
     }
 
-    Person savedPerson = repo.save(person);
+    Person savedPerson = null;
+    try {
+      savedPerson = repo.save(person);
+    } catch (DataAccessException e) {
+      String msg = "Error number: " + System.currentTimeMillis();
+      LOGGER.warn(msg, e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(msg + ". " + e.getMessage());
+    }
+
     return ResponseEntity.ok(savedPerson);
   }
 

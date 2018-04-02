@@ -3,6 +3,7 @@ package br.com.rcrios.smartportfolio.controller;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -113,11 +114,8 @@ public class UploadController {
   private void createFund(Row row) {
     PersonController pController = new PersonController(pRepo);
 
-    String mTaxPayerId = PoiUtils.getStringFromCell(row, 5);
-    Person manager = pController.getPerson(mTaxPayerId);
-
-    String tTaxPayerId = PoiUtils.getStringFromCell(row, 6);
-    Person trustee = pController.getPerson(tTaxPayerId);
+    Person manager = pController.getPerson(PoiUtils.getStringFromCell(row, 5));
+    Person trustee = pController.getPerson(PoiUtils.getStringFromCell(row, 6));
 
     Fund fund = new Fund();
     if (manager != null && trustee != null) {
@@ -139,6 +137,8 @@ public class UploadController {
     }
 
     fund.setFund((Person) response.getBody());
+    fund.setQuotes(PoiUtils.getNumberFromCell(row, 7));
+    fund.setValue(BigDecimal.ZERO);
 
     LOGGER.debug("Creating fund: {}", fund);
 

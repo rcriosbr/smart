@@ -2,6 +2,7 @@ package br.com.rcrios.smartportfolio.controller;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.util.List;
 
@@ -51,6 +52,14 @@ public class FundControllerTest {
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertNotNull(savedF);
     assertNotNull(savedF.getId());
+  }
+
+  @Test
+  public void getFundWithInvalidCnpjShouldReturnNull() {
+    FundController controller = new FundController(repo);
+    Fund f = controller.getFund("69");
+
+    assertNull(f);
   }
 
   private Fund factory() {
