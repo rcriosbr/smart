@@ -161,8 +161,6 @@ public class UploadController {
     quote.setQuoteDate(PoiUtils.getDateFromCell(row, 2));
     quote.setQuoteValue(PoiUtils.getNumberFromCell(row, 3));
 
-    LOGGER.debug("Creating quote: {}", quote);
-
     FundQuotesController controller = new FundQuotesController(fqRepo);
     controller.save(quote);
   }

@@ -38,7 +38,7 @@ public class FundController {
 
   @GetMapping("/{id}")
   public Fund getFund(@PathVariable("id") String nationalTaxPayerId) {
-    LOGGER.debug("Searching repository for a fund with ntpId '{}'", nationalTaxPayerId);
+    LOGGER.trace("Searching repository for a fund with ntpId '{}'", nationalTaxPayerId);
 
     Optional<Fund> result = repo.findByFundNationalTaxPayerId(nationalTaxPayerId);
     if (result.isPresent()) {

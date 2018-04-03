@@ -8,8 +8,11 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Optional;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
@@ -28,6 +31,7 @@ import br.com.rcrios.smartportfolio.repository.PersonRepository;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class UploadControllerTest {
+  private static final Logger LOGGER = LoggerFactory.getLogger(UploadControllerTest.class);
 
   @Autowired
   PersonRepository pRepo;
@@ -40,22 +44,22 @@ public class UploadControllerTest {
 
   @Test
   public void testPersonCreation() {
+    LOGGER.debug("Starting testPersonCreation. prepo.count={}; frepo.count={}; fqrepo.count={}", pRepo.count(), fRepo.count(), fqRepo.count());
+
     ResponseEntity<Void> response = this.doUpload("C:\\temp\\smartportfolio - person.xlsx");
 
     assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
-    long count = pRepo.count();
-    assertTrue(count > 0);
-
     Optional<Person> person = pRepo.findByNationalTaxPayerId("02.201.501/0001-61");
+
     assertTrue(person.isPresent());
     assertTrue(person.get().getId() != null);
-
-    pRepo.deleteAll();
   }
 
   @Test
   public void testFundCreation() {
+    LOGGER.debug("Starting testFundCreation. prepo.count={}; frepo.count={}; fqrepo.count={}", pRepo.count(), fRepo.count(), fqRepo.count());
+
     this.doUpload("C:\\temp\\smartportfolio - person.xlsx");
     ResponseEntity<Void> response = this.doUpload("C:\\temp\\smartportfolio - funds.xlsx");
 
@@ -65,18 +69,20 @@ public class UploadControllerTest {
     assertTrue(count > 0);
 
     Optional<Fund> fund = fRepo.findByFundNationalTaxPayerId("11.447.124/0001-36");
+
     assertTrue(fund.isPresent());
     assertTrue(fund.get().getId() != null);
-
-    fRepo.deleteAll();
-    pRepo.deleteAll();
   }
 
   @Test
   public void testFundQuoteCreation() {
+    LOGGER.debug("Starting testFundQuoteCreation. prepo.count={}; frepo.count={}; fqrepo.count={}", pRepo.count(), fRepo.count(), fqRepo.count());
+
     this.doUpload("C:\\temp\\smartportfolio - person.xlsx");
     this.doUpload("C:\\temp\\smartportfolio - funds.xlsx");
     ResponseEntity<Void> response = this.doUpload("C:\\temp\\smartportfolio - quotes.xlsx");
+
+    LOGGER.debug("After uploads: prepo.count={}; frepo.count={}; fqrepo.count={}", pRepo.count(), fRepo.count(), fqRepo.count());
 
     assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
@@ -86,13 +92,16 @@ public class UploadControllerTest {
     Calendar cal = Calendar.getInstance();
     cal.set(2018, Calendar.FEBRUARY, 28);
 
-    Optional<FundQuotes> quote = fqRepo.findByFundIdAndQuoteDate(15L, cal.getTime());
-    assertTrue(quote.isPresent());
-    assertTrue(quote.get().getQuoteValue().compareTo(Utils.nrFactory(12.720267)) == 0);
+    LOGGER.debug("Before find: fqrepo.count={}", fqRepo.count());
 
-    fqRepo.deleteAll();
-    fRepo.deleteAll();
-    pRepo.deleteAll();
+    Optional<Fund> fund = fRepo.findByFundNationalTaxPayerId("11.447.124/0001-36");
+
+    Optional<FundQuotes> quote = fqRepo.findByFundIdAndQuoteDate(fund.get().getId(), cal.getTime());
+
+    LOGGER.debug("findByFundIdAndQuoteDate({}, {}): {}", fund.get().getId(), cal.getTime(), quote);
+
+    assertTrue(quote.isPresent());
+    assertTrue(quote.get().getQuoteValue().compareTo(Utils.nrFactory(20.446291)) == 0);
   }
 
   private ResponseEntity<Void> doUpload(String fileName) {
@@ -105,5 +114,14 @@ public class UploadControllerTest {
       e.printStackTrace();
     }
     return response;
+  }
+
+  @Before
+  public void truncateRepositories() {
+    fqRepo.deleteAll();
+    fRepo.deleteAll();
+    pRepo.deleteAll();
+
+    LOGGER.debug("prepo.count={}; frepo.count={}; fqrepo.count={}", pRepo.count(), fRepo.count(), fqRepo.count());
   }
 }

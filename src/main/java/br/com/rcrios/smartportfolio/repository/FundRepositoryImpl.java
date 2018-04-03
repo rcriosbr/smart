@@ -65,7 +65,7 @@ public class FundRepositoryImpl implements FundRepositoryCustom {
 
     this.deal = deal;
 
-    LOGGER.debug("Fund will be updated with: quotes={}; quote value={}; quote date={}", fund.getQuotes(), quote.getQuoteValue(), quote.getQuoteDate());
+    LOGGER.trace("Fund will be updated with: quotes={}; quote value={}; quote date={}", fund.getQuotes(), quote.getQuoteValue(), quote.getQuoteDate());
 
     return repo.save(fund);
   }

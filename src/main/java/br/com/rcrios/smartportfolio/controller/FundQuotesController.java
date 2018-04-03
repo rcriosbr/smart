@@ -28,7 +28,7 @@ public class FundQuotesController {
 
   @PostMapping
   public ResponseEntity<Object> save(@RequestBody FundQuotes fundQuote) {
-    LOGGER.debug("Saving: {}", fundQuote);
+    LOGGER.trace("Saving: {}", fundQuote);
 
     try {
       FundQuotes.validate(fundQuote);

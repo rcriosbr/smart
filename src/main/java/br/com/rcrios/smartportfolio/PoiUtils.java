@@ -55,7 +55,7 @@ public final class PoiUtils {
         break;
       }
 
-      LOGGER.debug("Cell index '{}' of type '{}' content: {}", cellIndex, cell.getCellTypeEnum(), Objects.toString(content));
+      LOGGER.trace("Cell index '{}' of type '{}' content: {}", cellIndex, cell.getCellTypeEnum(), Objects.toString(content));
     }
 
     return content;
