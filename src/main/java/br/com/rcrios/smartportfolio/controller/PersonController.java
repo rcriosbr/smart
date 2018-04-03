@@ -19,6 +19,9 @@ import br.com.rcrios.smartportfolio.SmartPortfolioRuntimeException;
 import br.com.rcrios.smartportfolio.model.Person;
 import br.com.rcrios.smartportfolio.repository.PersonRepository;
 
+/**
+ * Exposes services related with a Person object.
+ */
 @CrossOrigin
 @RestController
 @RequestMapping(value = "/person")
@@ -27,10 +30,26 @@ public class PersonController {
 
   private PersonRepository repo;
 
+  /**
+   * Default constructor that also initializes the internal class repository.
+   * 
+   * @param repo
+   *          Repository that enables the controller to access data.
+   */
   public PersonController(PersonRepository repo) {
     this.repo = repo;
   }
 
+  /**
+   * Persists a Person object into the repository.
+   * 
+   * @param person
+   *          Object to be persisted
+   * 
+   * @return A ResponseEntity whose body is a Person object and HttpStatus.OK. If
+   *         the save action fails, the ResponseEntity will have a HttpStatus that
+   *         indicates the error and the body will be the error description.
+   */
   @PostMapping
   public ResponseEntity<Object> save(@RequestBody Person person) {
     LOGGER.debug("Saving {}", person);
@@ -55,6 +74,14 @@ public class PersonController {
     return ResponseEntity.ok(savedPerson);
   }
 
+  /**
+   * Retrieves a person by its national tax payer id (CNPJ).
+   * 
+   * @param nationalTaxPayerId
+   * 
+   * @return A Person with the provided national tax payer id, or NULL if the
+   *         provided argument does not exist.
+   */
   @GetMapping("/{id}")
   public Person getPerson(@PathVariable("id") String nationalTaxPayerId) {
     LOGGER.debug("Searching repository for a person with ntpId '{}'", nationalTaxPayerId);

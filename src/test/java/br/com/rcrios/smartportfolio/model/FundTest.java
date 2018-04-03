@@ -25,6 +25,9 @@ public class FundTest {
   @Test
   public void validFundInstantiation() {
     Fund f = FundTest.factory();
+    f.setFund(PersonTest.factory());
+    f.setManager(PersonTest.factory());
+    f.setTrustee(PersonTest.factory());
 
     try {
       Fund.validate(f);
