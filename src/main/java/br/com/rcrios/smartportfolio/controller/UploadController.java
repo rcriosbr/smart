@@ -22,11 +22,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import br.com.rcrios.smartportfolio.PoiUtils;
 import br.com.rcrios.smartportfolio.SmartPortfolioRuntimeException;
+import br.com.rcrios.smartportfolio.model.Deal;
 import br.com.rcrios.smartportfolio.model.Fund;
 import br.com.rcrios.smartportfolio.model.FundQuotes;
 import br.com.rcrios.smartportfolio.model.Person;
 import br.com.rcrios.smartportfolio.model.PersonType;
 import br.com.rcrios.smartportfolio.model.TransactionType;
+import br.com.rcrios.smartportfolio.repository.DealRepository;
 import br.com.rcrios.smartportfolio.repository.FundQuotesRepository;
 import br.com.rcrios.smartportfolio.repository.FundRepository;
 import br.com.rcrios.smartportfolio.repository.PersonRepository;
@@ -40,11 +42,13 @@ public class UploadController {
   private PersonRepository pRepo;
   private FundRepository fRepo;
   private FundQuotesRepository fqRepo;
+  private DealRepository dRepo;
 
-  public UploadController(PersonRepository pRepo, FundRepository fRepo, FundQuotesRepository fqRepo) {
+  public UploadController(PersonRepository pRepo, FundRepository fRepo, FundQuotesRepository fqRepo, DealRepository dRepo) {
     this.pRepo = pRepo;
     this.fRepo = fRepo;
     this.fqRepo = fqRepo;
+    this.dRepo = dRepo;
   }
 
   @PostMapping
@@ -93,6 +97,7 @@ public class UploadController {
         this.createQuote(row);
         break;
       default:
+        this.doDeal(row, type);
         break;
       }
     }
@@ -163,5 +168,25 @@ public class UploadController {
 
     FundQuotesController controller = new FundQuotesController(fqRepo);
     controller.save(quote);
+  }
+
+  private void doDeal(Row row, TransactionType type) {
+    FundController fController = new FundController(fRepo);
+
+    String cellContent = PoiUtils.getStringFromCell(row, 2);
+    Fund fund = fController.getFund(cellContent);
+
+    if (fund == null) {
+      throw new SmartPortfolioRuntimeException("Could not locate fund '" + cellContent + "'. Impossible to contiue.");
+    }
+
+    Deal deal = new Deal();
+    deal.setDate(PoiUtils.getDateFromCell(row, 1));
+    deal.setFund(fund);
+    deal.setQuotes(PoiUtils.getNumberFromCell(row, 3));
+    deal.setType(type);
+
+    DealController controller = new DealController(dRepo);
+    controller.save(deal);
   }
 }

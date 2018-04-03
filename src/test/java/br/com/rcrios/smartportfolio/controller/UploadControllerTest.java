@@ -24,6 +24,7 @@ import br.com.rcrios.smartportfolio.Utils;
 import br.com.rcrios.smartportfolio.model.Fund;
 import br.com.rcrios.smartportfolio.model.FundQuotes;
 import br.com.rcrios.smartportfolio.model.Person;
+import br.com.rcrios.smartportfolio.repository.DealRepository;
 import br.com.rcrios.smartportfolio.repository.FundQuotesRepository;
 import br.com.rcrios.smartportfolio.repository.FundRepository;
 import br.com.rcrios.smartportfolio.repository.PersonRepository;
@@ -41,6 +42,9 @@ public class UploadControllerTest {
 
   @Autowired
   FundQuotesRepository fqRepo;
+
+  @Autowired
+  DealRepository dRepo;
 
   @Test
   public void testPersonCreation() {
@@ -108,7 +112,7 @@ public class UploadControllerTest {
     ResponseEntity<Void> response = null;
 
     try (FileInputStream fileStream = new FileInputStream(fileName)) {
-      UploadController controller = new UploadController(pRepo, fRepo, fqRepo);
+      UploadController controller = new UploadController(pRepo, fRepo, fqRepo, dRepo);
       response = controller.handleFileUpload(new MockMultipartFile(fileName, fileStream));
     } catch (IOException e) {
       e.printStackTrace();
@@ -118,10 +122,11 @@ public class UploadControllerTest {
 
   @Before
   public void truncateRepositories() {
+    dRepo.deleteAll();
     fqRepo.deleteAll();
     fRepo.deleteAll();
     pRepo.deleteAll();
 
-    LOGGER.debug("prepo.count={}; frepo.count={}; fqrepo.count={}", pRepo.count(), fRepo.count(), fqRepo.count());
+    LOGGER.debug("prepo.count={}; frepo.count={}; fqrepo.count={}; dRepo.count={}", pRepo.count(), fRepo.count(), fqRepo.count(), dRepo.count());
   }
 }

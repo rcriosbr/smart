@@ -4,15 +4,20 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import br.com.rcrios.smartportfolio.SmartPortfolioRuntimeException;
 import br.com.rcrios.smartportfolio.Utils;
 import br.com.rcrios.smartportfolio.model.Deal;
 import br.com.rcrios.smartportfolio.model.Fund;
@@ -50,6 +55,9 @@ public class DealControllerTest {
   @Autowired
   PersonRepository prepo;
 
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
+
   @Test
   public void testSave() {
     Fund fund = this.fundFactory();
@@ -74,6 +82,36 @@ public class DealControllerTest {
     assertTrue(sdf.format(savedDeal.getFund().getLastUpdated()).equals(sdf.format(savedDeal.getDate())));
 
     this.truncateDatabase();
+  }
+
+  @Test
+  public void dealWithoutQuoteShouldThrowException() {
+    Fund fund = this.fundFactory();
+
+    Deal deal = new Deal();
+    deal.setFund(fund);
+    deal.setType(TransactionType.BUY);
+    deal.setValue(Utils.nrFactory(1000));
+
+    Calendar calendar = GregorianCalendar.getInstance();
+    calendar.add(Calendar.YEAR, 10);
+    deal.setDate(calendar.getTime());
+
+    exception.expect(SmartPortfolioRuntimeException.class);
+    repo.save(deal);
+  }
+
+  @Test
+  public void invalidDealShouldThrowException() {
+    Fund fund = this.fundFactory();
+
+    Deal deal = new Deal();
+    deal.setFund(fund);
+    deal.setDate(new Date());
+    deal.setType(TransactionType.BUY);
+
+    exception.expect(SmartPortfolioRuntimeException.class);
+    repo.save(deal);
   }
 
   private Fund fundFactory() {
