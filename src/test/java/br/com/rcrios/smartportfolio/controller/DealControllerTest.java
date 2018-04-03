@@ -15,6 +15,8 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import br.com.rcrios.smartportfolio.SmartPortfolioRuntimeException;
@@ -68,11 +70,47 @@ public class DealControllerTest {
     deal.setDate(new Date());
     deal.setValue(Utils.nrFactory(1000));
 
-    Deal savedDeal = repo.save(deal);
+    DealController controller = new DealController(repo);
+    ResponseEntity<Object> response = controller.save(deal);
+
+    assertTrue(HttpStatus.OK.equals(response.getStatusCode()));
+
+    Deal savedDeal = (Deal) response.getBody();
 
     assertNotNull(savedDeal);
     assertNotNull(savedDeal.getId());
     assertTrue(savedDeal.getQuotes().compareTo(Utils.nrFactory(1000)) == 0);
+
+    assertTrue(savedDeal.getFund().getQuotes().compareTo(Utils.nrFactory(1000)) == 0);
+    assertTrue(savedDeal.getFund().getValue().compareTo(Utils.nrFactory(1000)) == 0);
+
+    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
+
+    assertTrue(sdf.format(savedDeal.getFund().getLastUpdated()).equals(sdf.format(savedDeal.getDate())));
+
+    this.truncateDatabase();
+  }
+
+  @Test
+  public void testSaveByQuotes() {
+    Fund fund = this.fundFactory();
+
+    Deal deal = new Deal();
+    deal.setFund(fund);
+    deal.setType(TransactionType.BUY);
+    deal.setDate(new Date());
+    deal.setQuotes(Utils.nrFactory(1000));
+
+    DealController controller = new DealController(repo);
+    ResponseEntity<Object> response = controller.save(deal);
+
+    assertTrue(HttpStatus.OK.equals(response.getStatusCode()));
+
+    Deal savedDeal = (Deal) response.getBody();
+
+    assertNotNull(savedDeal);
+    assertNotNull(savedDeal.getId());
+    assertTrue(savedDeal.getValue().compareTo(Utils.nrFactory(1000)) == 0);
 
     assertTrue(savedDeal.getFund().getQuotes().compareTo(Utils.nrFactory(1000)) == 0);
     assertTrue(savedDeal.getFund().getValue().compareTo(Utils.nrFactory(1000)) == 0);
@@ -99,6 +137,38 @@ public class DealControllerTest {
 
     exception.expect(SmartPortfolioRuntimeException.class);
     repo.save(deal);
+  }
+
+  @Test
+  public void DataAccessProblemsShouldReturnAnError() {
+    Fund fund = this.fundFactory();
+    fund.setManager(PersonTest.factory());
+
+    Deal deal = new Deal();
+    deal.setFund(fund);
+    deal.setType(TransactionType.BUY);
+    deal.setValue(Utils.nrFactory(1000));
+    deal.setDate(new Date());
+
+    DealController controller = new DealController(repo);
+    ResponseEntity<Object> response = controller.save(deal);
+
+    assertTrue(HttpStatus.INTERNAL_SERVER_ERROR.equals(response.getStatusCode()));
+  }
+
+  @Test
+  public void dealWithoutDateShouldReturnAnError() {
+    Fund fund = this.fundFactory();
+
+    Deal deal = new Deal();
+    deal.setFund(fund);
+    deal.setType(TransactionType.BUY);
+    deal.setValue(Utils.nrFactory(1000));
+
+    DealController controller = new DealController(repo);
+    ResponseEntity<Object> response = controller.save(deal);
+
+    assertTrue(HttpStatus.PRECONDITION_FAILED.equals(response.getStatusCode()));
   }
 
   @Test

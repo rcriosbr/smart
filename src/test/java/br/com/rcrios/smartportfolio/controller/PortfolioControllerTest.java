@@ -53,6 +53,13 @@ public class PortfolioControllerTest {
   DealRepository drepo;
 
   @Test
+  public void saveWithNullShouldReturnErrorCode() {
+    PortfolioController controller = new PortfolioController(repo);
+    ResponseEntity<Object> response = controller.save(new Portfolio());
+    assertEquals(HttpStatus.PRECONDITION_FAILED, response.getStatusCode());
+  }
+
+  @Test
   public void testSave() {
     PortfolioController controller = new PortfolioController(repo);
 
@@ -100,6 +107,16 @@ public class PortfolioControllerTest {
     assertTrue(updatedMasterPortfolio.getQuotes().compareTo(Utils.nrFactory(10)) == 0);
     assertTrue(updatedMasterPortfolio.getValue().compareTo(deal.getValue()) == 0);
 
+    deal = this.dealSellFactory(funds.get(0));
+
+    updatedPortfolio = repo.findById(savedP.getId()).get();
+    assertTrue(updatedPortfolio.getQuotes().compareTo(BigDecimal.ZERO) == 0);
+    assertTrue(updatedPortfolio.getValue().compareTo(BigDecimal.ZERO) == 0);
+
+    updatedMasterPortfolio = repo.findById(savedP.getMaster().getId()).get();
+    assertTrue(updatedMasterPortfolio.getQuotes().compareTo(BigDecimal.ZERO) == 0);
+    assertTrue(updatedMasterPortfolio.getValue().compareTo(BigDecimal.ZERO) == 0);
+
     this.truncateDatabase();
   }
 
@@ -107,6 +124,16 @@ public class PortfolioControllerTest {
     Deal deal = new Deal();
     deal.setFund(fund);
     deal.setType(TransactionType.BUY);
+    deal.setDate(new Date());
+    deal.setValue(Utils.nrFactory(1000));
+
+    return drepo.save(deal);
+  }
+
+  private Deal dealSellFactory(Fund fund) {
+    Deal deal = new Deal();
+    deal.setFund(fund);
+    deal.setType(TransactionType.SELL);
     deal.setDate(new Date());
     deal.setValue(Utils.nrFactory(1000));
 

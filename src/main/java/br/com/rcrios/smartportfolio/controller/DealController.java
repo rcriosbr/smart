@@ -35,7 +35,7 @@ public class DealController {
       Deal.validate(deal);
     } catch (SmartPortfolioRuntimeException e) {
       String msg = "Error number: " + System.currentTimeMillis();
-      LOGGER.warn(msg, e);
+      LOGGER.error(msg, e);
       return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).body(msg + ". " + e.getMessage());
     }
 
@@ -44,7 +44,7 @@ public class DealController {
       savedDeal = repo.save(deal);
     } catch (DataAccessException e) {
       String msg = "Error number: " + System.currentTimeMillis();
-      LOGGER.warn(msg, e);
+      LOGGER.error(msg, e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(msg + ". " + e.getMessage());
     }
 
