@@ -145,8 +145,6 @@ public class UploadController {
     fund.setQuotes(PoiUtils.getNumberFromCell(row, 7));
     fund.setValue(BigDecimal.ZERO);
 
-    LOGGER.debug("Creating fund: {}", fund);
-
     FundController controller = new FundController(fRepo);
     controller.save(fund);
   }

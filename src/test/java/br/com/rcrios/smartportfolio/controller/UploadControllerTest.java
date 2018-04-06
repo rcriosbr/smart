@@ -5,7 +5,11 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -108,6 +112,33 @@ public class UploadControllerTest {
     assertTrue(quote.get().getQuoteValue().compareTo(Utils.nrFactory(20.446291)) == 0);
   }
 
+  @Test
+  public void testDealUplaod() {
+    LOGGER.debug("Starting testDealUplaod. prepo.count={}; frepo.count={}; fqrepo.count={}; drepo.count={}", pRepo.count(), fRepo.count(), fqRepo.count(), dRepo.count());
+
+    this.doUpload("C:\\systems_development\\workspaces\\oxygen\\diversos\\smartPortfolio\\src\\main\\resources\\smartportfolio - person.xlsx");
+    this.doUpload("C:\\systems_development\\workspaces\\oxygen\\diversos\\smartPortfolio\\src\\main\\resources\\smartportfolio - funds.xlsx");
+    this.doUpload("C:\\systems_development\\workspaces\\oxygen\\diversos\\smartPortfolio\\src\\main\\resources\\smartportfolio - quotes.xlsx");
+    this.doUpload("C:\\systems_development\\workspaces\\oxygen\\diversos\\smartPortfolio\\src\\main\\resources\\smartportfolio - deals.xlsx");
+
+    // this.doUpload("C:\\systems_development\\workspaces\\oxygen\\diversos\\smartPortfolio\\src\\main\\resources\\smartportfolio
+    // - person.xlsx");
+    // this.doUpload("C:\\temp\\smartportfolio - funds - jgp.xlsx");
+    // this.doUpload("C:\\temp\\smartportfolio - quotes - jgp.xlsx");
+    // this.doUpload("C:\\temp\\smartportfolio - deals - jgp.xlsx");
+
+    LOGGER.debug("After uploads: prepo.count={}; frepo.count={}; fqrepo.count={}; drepo.count={}", pRepo.count(), fRepo.count(), fqRepo.count(), dRepo.count());
+
+    System.out.println();
+    NumberFormat nf = NumberFormat.getNumberInstance(new Locale("pt", "BR"));
+    List<Fund> funds = fRepo.findAll();
+    for (Fund fund : funds) {
+      String out = String.format("%s;%s;%s", fund.getFund().getNickname(), nf.format(fund.getQuotes()), nf.format(fund.getValue()));
+      System.out.println(out);
+    }
+    System.out.println();
+  }
+
   private ResponseEntity<Void> doUpload(String fileName) {
     ResponseEntity<Void> response = null;
 
@@ -115,7 +146,7 @@ public class UploadControllerTest {
       UploadController controller = new UploadController(pRepo, fRepo, fqRepo, dRepo);
       response = controller.handleFileUpload(new MockMultipartFile(fileName, fileStream));
     } catch (IOException e) {
-      e.printStackTrace();
+      LOGGER.error("Erro ao processar arquivo " + Objects.toString(fileName), e);
     }
     return response;
   }

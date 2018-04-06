@@ -30,7 +30,7 @@ public class FundController {
 
   @PostMapping
   public ResponseEntity<Object> save(@RequestBody Fund fund) {
-    LOGGER.debug("Request body: {}", fund);
+    LOGGER.debug("Saving {}", fund);
 
     Fund savedFund = repo.save(fund);
     return ResponseEntity.ok(savedFund);

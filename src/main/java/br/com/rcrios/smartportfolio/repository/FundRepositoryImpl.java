@@ -1,6 +1,7 @@
 package br.com.rcrios.smartportfolio.repository;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +26,12 @@ public class FundRepositoryImpl implements FundRepositoryCustom {
 
   @Override
   public Fund save(Fund fund) {
-    LOGGER.debug("Saving {}", fund);
+    if (fund != null && fund.getLastUpdated() == null) {
+      fund.setLastUpdated(new Date());
+    }
+
     Fund savedFund = repo.saveAndFlush(fund);
+    LOGGER.debug("Saved {}", savedFund);
 
     prepo.update(savedFund, this.deal);
 
@@ -35,14 +40,18 @@ public class FundRepositoryImpl implements FundRepositoryCustom {
 
   @Override
   public Fund update(Deal deal, FundQuotes quote) {
+    LOGGER.debug("Deal {} started the updating of fund {} using {}", deal != null ? deal.getId() : null, deal != null ? deal.getFund().getId() : null, quote);
+
     TransactionType updateType = null;
 
     Fund fund = null;
     if (deal == null) {
       fund = quote.getFund();
+      fund.setLastUpdated(quote.getQuoteDate());
       updateType = TransactionType.UPDATE;
     } else {
       fund = deal.getFund();
+      fund.setLastUpdated(deal.getDate());
       updateType = deal.getType();
     }
 

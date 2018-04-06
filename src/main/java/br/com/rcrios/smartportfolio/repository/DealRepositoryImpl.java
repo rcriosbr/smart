@@ -32,7 +32,8 @@ public class DealRepositoryImpl implements DealRepositoryCustom {
     Optional<FundQuotes> quotes = fqrepo.findByFundIdAndQuoteDate(deal.getFund().getId(), deal.getDate());
 
     if (!quotes.isPresent()) {
-      throw new SmartPortfolioRuntimeException("Could not retrieve a quote for fund " + deal.getFund().getId() + "and deal date " + deal.getDate());
+      throw new SmartPortfolioRuntimeException(
+          "Could not retrieve a quote for fund '" + deal.getFund().getId() + "' (" + deal.getFund().getFund().getNickname() + ") and deal date " + deal.getDate());
     }
 
     FundQuotes quote = quotes.get();
@@ -46,10 +47,9 @@ public class DealRepositoryImpl implements DealRepositoryCustom {
       throw new SmartPortfolioRuntimeException("Could not calculate quote value. Deal does not have a value and/or a quote quantity.");
     }
 
-    LOGGER.debug("Saving {}", deal);
     Deal savedDeal = repo.saveAndFlush(deal);
+    LOGGER.debug("Saved {}", deal);
 
-    LOGGER.debug("Deal {} started the updating of fund {} using {}", savedDeal.getId(), savedDeal.getFund().getId(), quote);
     Fund fund = frepo.update(savedDeal, quote);
     savedDeal.setFund(fund);
 

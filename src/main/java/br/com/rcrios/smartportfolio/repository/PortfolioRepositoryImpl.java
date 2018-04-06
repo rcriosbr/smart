@@ -29,8 +29,8 @@ public class PortfolioRepositoryImpl implements PortfolioRepositoryCustom {
 
   @Override
   public Portfolio save(Portfolio portfolio) {
-    LOGGER.debug("Saving {}", portfolio);
     Portfolio savedPorfolio = repo.saveAndFlush(portfolio);
+    LOGGER.debug("Saved {}", savedPorfolio);
 
     if (portfolio.getMaster() != null) {
       LOGGER.debug("Portfolio '{}' has a master with id: {}", portfolio.getName(), portfolio.getMaster().getId());
