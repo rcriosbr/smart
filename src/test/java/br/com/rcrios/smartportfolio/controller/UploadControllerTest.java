@@ -28,6 +28,7 @@ import br.com.rcrios.smartportfolio.Utils;
 import br.com.rcrios.smartportfolio.model.Fund;
 import br.com.rcrios.smartportfolio.model.FundQuotes;
 import br.com.rcrios.smartportfolio.model.Person;
+import br.com.rcrios.smartportfolio.repository.BenchmarkRepository;
 import br.com.rcrios.smartportfolio.repository.DealRepository;
 import br.com.rcrios.smartportfolio.repository.FundQuotesRepository;
 import br.com.rcrios.smartportfolio.repository.FundRepository;
@@ -50,11 +51,14 @@ public class UploadControllerTest {
   @Autowired
   DealRepository dRepo;
 
+  @Autowired
+  BenchmarkRepository bRepo;
+
   @Test
   public void testPersonCreation() {
     LOGGER.debug("Starting testPersonCreation. prepo.count={}; frepo.count={}; fqrepo.count={}", pRepo.count(), fRepo.count(), fqRepo.count());
 
-    ResponseEntity<Void> response = this.doUpload("C:\\temp\\smartportfolio - person.xlsx");
+    ResponseEntity<Object> response = this.doUpload("C:\\temp\\smartportfolio - person.xlsx");
 
     assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
@@ -65,11 +69,16 @@ public class UploadControllerTest {
   }
 
   @Test
+  public void testBenchmarkCreation() {
+    ResponseEntity<Object> response = this.doUpload("C:\\systems_development\\workspaces\\oxygen\\diversos\\smartPortfolio\\src\\main\\resources\\taxa_selic_apurada.txt");
+  }
+
+  @Test
   public void testFundCreation() {
     LOGGER.debug("Starting testFundCreation. prepo.count={}; frepo.count={}; fqrepo.count={}", pRepo.count(), fRepo.count(), fqRepo.count());
 
     this.doUpload("C:\\temp\\smartportfolio - person.xlsx");
-    ResponseEntity<Void> response = this.doUpload("C:\\temp\\smartportfolio - funds.xlsx");
+    ResponseEntity<Object> response = this.doUpload("C:\\temp\\smartportfolio - funds.xlsx");
 
     assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
@@ -88,7 +97,7 @@ public class UploadControllerTest {
 
     this.doUpload("C:\\temp\\smartportfolio - person.xlsx");
     this.doUpload("C:\\temp\\smartportfolio - funds.xlsx");
-    ResponseEntity<Void> response = this.doUpload("C:\\temp\\smartportfolio - quotes.xlsx");
+    ResponseEntity<Object> response = this.doUpload("C:\\temp\\smartportfolio - quotes.xlsx");
 
     LOGGER.debug("After uploads: prepo.count={}; frepo.count={}; fqrepo.count={}", pRepo.count(), fRepo.count(), fqRepo.count());
 
@@ -139,11 +148,11 @@ public class UploadControllerTest {
     System.out.println();
   }
 
-  private ResponseEntity<Void> doUpload(String fileName) {
-    ResponseEntity<Void> response = null;
+  private ResponseEntity<Object> doUpload(String fileName) {
+    ResponseEntity<Object> response = null;
 
     try (FileInputStream fileStream = new FileInputStream(fileName)) {
-      UploadController controller = new UploadController(pRepo, fRepo, fqRepo, dRepo);
+      UploadController controller = new UploadController(pRepo, fRepo, fqRepo, dRepo, bRepo);
       response = controller.handleFileUpload(new MockMultipartFile(fileName, fileStream));
     } catch (IOException e) {
       LOGGER.error("Erro ao processar arquivo " + Objects.toString(fileName), e);

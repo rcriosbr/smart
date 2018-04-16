@@ -1,14 +1,18 @@
 package br.com.rcrios.smartportfolio.controller;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -22,12 +26,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 import br.com.rcrios.smartportfolio.PoiUtils;
 import br.com.rcrios.smartportfolio.SmartPortfolioRuntimeException;
+import br.com.rcrios.smartportfolio.Utils;
+import br.com.rcrios.smartportfolio.model.Benchmark;
+import br.com.rcrios.smartportfolio.model.BenchmarkType;
 import br.com.rcrios.smartportfolio.model.Deal;
 import br.com.rcrios.smartportfolio.model.Fund;
 import br.com.rcrios.smartportfolio.model.FundQuotes;
 import br.com.rcrios.smartportfolio.model.Person;
 import br.com.rcrios.smartportfolio.model.PersonType;
 import br.com.rcrios.smartportfolio.model.TransactionType;
+import br.com.rcrios.smartportfolio.repository.BenchmarkRepository;
 import br.com.rcrios.smartportfolio.repository.DealRepository;
 import br.com.rcrios.smartportfolio.repository.FundQuotesRepository;
 import br.com.rcrios.smartportfolio.repository.FundRepository;
@@ -43,26 +51,56 @@ public class UploadController {
   private FundRepository fRepo;
   private FundQuotesRepository fqRepo;
   private DealRepository dRepo;
+  private BenchmarkRepository bRepo;
 
-  public UploadController(PersonRepository pRepo, FundRepository fRepo, FundQuotesRepository fqRepo, DealRepository dRepo) {
+  public UploadController(PersonRepository pRepo, FundRepository fRepo, FundQuotesRepository fqRepo, DealRepository dRepo, BenchmarkRepository bRepo) {
     this.pRepo = pRepo;
     this.fRepo = fRepo;
     this.fqRepo = fqRepo;
     this.dRepo = dRepo;
+    this.bRepo = bRepo;
   }
 
   @PostMapping
-  public ResponseEntity<Void> handleFileUpload(@RequestParam("file") MultipartFile uploadedFile) {
+  public ResponseEntity<Object> handleFileUpload(@RequestParam("file") MultipartFile uploadedFile) {
     LOGGER.debug("Uploaded file: {}", uploadedFile.getOriginalFilename());
 
     try {
       InputStream inputStream = new BufferedInputStream(uploadedFile.getInputStream());
-      this.process(inputStream);
-    } catch (IOException e) {
-      LOGGER.error("Error processing upload.", e);
-      return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
+
+      Tika tika = new Tika();
+      String mime = tika.detect(inputStream);
+
+      if (mime != null && mime.equals("text/plain")) {
+        this.processBacenSelicFile(inputStream);
+      } else {
+        this.process(inputStream);
+      }
+    } catch (IOException | SmartPortfolioRuntimeException e) {
+      LOGGER.error("Error handling file upload.", e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
     }
-    return new ResponseEntity<Void>(HttpStatus.CREATED);
+
+    return ResponseEntity.ok("");
+  }
+
+  private void processBacenSelicFile(InputStream inputStream) throws IOException {
+    BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+    int idx = 0;
+    String line = null;
+    while ((line = br.readLine()) != null) {
+      if (idx > 1) {
+        String[] tokens = line.split(";");
+
+        Benchmark b = new Benchmark();
+        b.setType(BenchmarkType.SELIC);
+        b.setDate(Utils.toDate(tokens[0]));
+        b.setDailyFactor(Utils.nrFactory(tokens[2].replaceAll(",", ".")));
+
+        bRepo.save(b);
+      }
+      idx++;
+    }
   }
 
   private void process(InputStream inputStream) throws IOException {

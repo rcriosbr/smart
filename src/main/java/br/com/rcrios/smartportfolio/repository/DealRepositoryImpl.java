@@ -32,8 +32,10 @@ public class DealRepositoryImpl implements DealRepositoryCustom {
     Optional<FundQuotes> quotes = fqrepo.findByFundIdAndQuoteDate(deal.getFund().getId(), deal.getDate());
 
     if (!quotes.isPresent()) {
-      throw new SmartPortfolioRuntimeException(
-          "Could not retrieve a quote for fund '" + deal.getFund().getId() + "' (" + deal.getFund().getFund().getNickname() + ") and deal date " + deal.getDate());
+      String msg = "Impossible to save deal. Could not retrieve a quote for fund '" + deal.getFund().getId() + "' (" + deal.getFund().getFund().getNickname() + ") and deal date "
+          + Utils.toString(deal.getDate());
+
+      throw new SmartPortfolioRuntimeException(msg);
     }
 
     FundQuotes quote = quotes.get();
