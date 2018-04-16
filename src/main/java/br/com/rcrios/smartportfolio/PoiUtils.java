@@ -79,7 +79,6 @@ public final class PoiUtils {
     if (cellContent != null) {
       return (Date) cellContent;
     }
-
     return null;
   }
 }
