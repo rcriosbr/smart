@@ -26,7 +26,9 @@ public class FundRepositoryImpl implements FundRepositoryCustom {
 
   @Override
   public Fund save(Fund fund) {
-    if (fund != null && fund.getLastUpdated() == null) {
+    Fund.validate(fund);
+
+    if (fund.getLastUpdated() == null) {
       fund.setLastUpdated(new Date());
     }
 

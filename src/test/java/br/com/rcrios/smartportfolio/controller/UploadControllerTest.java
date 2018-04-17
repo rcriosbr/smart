@@ -33,6 +33,7 @@ import br.com.rcrios.smartportfolio.repository.DealRepository;
 import br.com.rcrios.smartportfolio.repository.FundQuotesRepository;
 import br.com.rcrios.smartportfolio.repository.FundRepository;
 import br.com.rcrios.smartportfolio.repository.PersonRepository;
+import br.com.rcrios.smartportfolio.repository.PortfolioRepository;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -41,6 +42,9 @@ public class UploadControllerTest {
 
   @Autowired
   PersonRepository pRepo;
+
+  @Autowired
+  PortfolioRepository poRepo;
 
   @Autowired
   FundRepository fRepo;
@@ -152,7 +156,7 @@ public class UploadControllerTest {
     ResponseEntity<Object> response = null;
 
     try (FileInputStream fileStream = new FileInputStream(fileName)) {
-      UploadController controller = new UploadController(pRepo, fRepo, fqRepo, dRepo, bRepo);
+      UploadController controller = new UploadController(pRepo, poRepo, fRepo, fqRepo, dRepo, bRepo);
       response = controller.handleFileUpload(new MockMultipartFile(fileName, fileStream));
     } catch (IOException e) {
       LOGGER.error("Erro ao processar arquivo " + Objects.toString(fileName), e);

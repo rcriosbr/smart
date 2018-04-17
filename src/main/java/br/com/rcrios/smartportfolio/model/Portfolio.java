@@ -29,7 +29,6 @@ public class Portfolio implements Serializable {
 
   @Column(nullable = false)
   private String name;
-  private String nickname;
 
   @ManyToOne
   private Portfolio master;
@@ -66,14 +65,6 @@ public class Portfolio implements Serializable {
 
   public void setName(String name) {
     this.name = name;
-  }
-
-  public String getNickname() {
-    return nickname;
-  }
-
-  public void setNickname(String nickname) {
-    this.nickname = nickname;
   }
 
   public Portfolio getMaster() {
@@ -134,7 +125,7 @@ public class Portfolio implements Serializable {
 
   @Override
   public String toString() {
-    return String.format("Portfolio [id=%s, name=%s, nickname=%s, master.id=%s, funds=%s, quoteValueDate=%s, quotes=%s, quoteValue=%s, value=%s, quoteValueBenchmark=%s]", id, name,
-        nickname, master != null ? master.getId() : null, funds, quoteValueDate, quotes, quoteValue, value, quoteValueBenchmark);
+    return String.format("Portfolio [id=%s, name=%s, master.id=%s, funds=%s, quoteValueDate=%s, quotes=%s, quoteValue=%s, value=%s, quoteValueBenchmark=%s]", id, name,
+        master != null ? master.getId() : null, funds, quoteValueDate, quotes, quoteValue, value, quoteValueBenchmark);
   }
 }

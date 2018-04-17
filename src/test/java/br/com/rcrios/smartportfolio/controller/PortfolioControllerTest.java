@@ -65,7 +65,6 @@ public class PortfolioControllerTest {
 
     Portfolio master = new Portfolio();
     master.setName("MASTER");
-    master.setNickname("JUNIT");
     master.setQuoteValueDate(new Date());
     master.setQuoteValue(Utils.nrFactory(100));
     master.setQuoteValueBenchmark(Utils.nrFactory(100));
@@ -80,7 +79,6 @@ public class PortfolioControllerTest {
 
     Portfolio p = new Portfolio();
     p.setName("RENDA FIXA");
-    p.setNickname("JUNIT RF");
     p.setFunds(funds);
     p.setMaster(master);
     p.setQuoteValueDate(new Date());
@@ -158,7 +156,7 @@ public class PortfolioControllerTest {
   }
 
   private void populateFund(Fund fund) {
-    FundQuotesController controller = new FundQuotesController(fqrepo);
+    QuoteController controller = new QuoteController(fqrepo);
 
     List<FundQuotes> quotes = FundQuotesTest.factory();
     for (FundQuotes fundQuotes : quotes) {

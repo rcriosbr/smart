@@ -17,6 +17,8 @@ public class FundQuotesRepositoryImpl implements FundQuotesRepositoryCustom {
 
   @Override
   public FundQuotes save(FundQuotes fundQuotes) {
+    FundQuotes.validate(fundQuotes);
+
     FundQuotes savedFQ = repo.saveAndFlush(fundQuotes);
 
     LOGGER.debug("FundQuote '{}' started updated of {}", savedFQ.getId(), savedFQ.getFund());

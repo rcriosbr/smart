@@ -26,7 +26,7 @@ public class FundQuotesControllerTest {
 
   @Test
   public void saveNullShouldThrowException() {
-    FundQuotesController controller = new FundQuotesController(repo);
+    QuoteController controller = new QuoteController(repo);
     ResponseEntity<Object> response = controller.save(null);
 
     assertEquals(HttpStatus.PRECONDITION_FAILED, response.getStatusCode());

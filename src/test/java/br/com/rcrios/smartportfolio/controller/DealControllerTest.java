@@ -202,7 +202,7 @@ public class DealControllerTest {
   }
 
   private void populateFund(Fund fund) {
-    FundQuotesController controller = new FundQuotesController(fqrepo);
+    QuoteController controller = new QuoteController(fqrepo);
 
     List<FundQuotes> quotes = FundQuotesTest.factory();
     for (FundQuotes fundQuotes : quotes) {

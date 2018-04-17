@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -34,12 +35,14 @@ import br.com.rcrios.smartportfolio.model.Fund;
 import br.com.rcrios.smartportfolio.model.FundQuotes;
 import br.com.rcrios.smartportfolio.model.Person;
 import br.com.rcrios.smartportfolio.model.PersonType;
+import br.com.rcrios.smartportfolio.model.Portfolio;
 import br.com.rcrios.smartportfolio.model.TransactionType;
 import br.com.rcrios.smartportfolio.repository.BenchmarkRepository;
 import br.com.rcrios.smartportfolio.repository.DealRepository;
 import br.com.rcrios.smartportfolio.repository.FundQuotesRepository;
 import br.com.rcrios.smartportfolio.repository.FundRepository;
 import br.com.rcrios.smartportfolio.repository.PersonRepository;
+import br.com.rcrios.smartportfolio.repository.PortfolioRepository;
 
 @CrossOrigin
 @RestController
@@ -48,13 +51,15 @@ public class UploadController {
   private static final Logger LOGGER = LoggerFactory.getLogger(UploadController.class);
 
   private PersonRepository pRepo;
+  private PortfolioRepository poRepo;
   private FundRepository fRepo;
   private FundQuotesRepository fqRepo;
   private DealRepository dRepo;
   private BenchmarkRepository bRepo;
 
-  public UploadController(PersonRepository pRepo, FundRepository fRepo, FundQuotesRepository fqRepo, DealRepository dRepo, BenchmarkRepository bRepo) {
+  public UploadController(PersonRepository pRepo, PortfolioRepository poRepo, FundRepository fRepo, FundQuotesRepository fqRepo, DealRepository dRepo, BenchmarkRepository bRepo) {
     this.pRepo = pRepo;
+    this.poRepo = poRepo;
     this.fRepo = fRepo;
     this.fqRepo = fqRepo;
     this.dRepo = dRepo;
@@ -93,6 +98,8 @@ public class UploadController {
         String[] tokens = line.split(";");
 
         Benchmark b = new Benchmark();
+
+        // TODO Deixar dinamico
         b.setType(BenchmarkType.SELIC);
         b.setDate(Utils.toDate(tokens[0]));
         b.setDailyFactor(Utils.nrFactory(tokens[2].replaceAll(",", ".")));
@@ -128,6 +135,9 @@ public class UploadController {
       case CREATE_PERSON:
         this.createPerson(row);
         break;
+      case CREATE_PORTFOLIO:
+        this.createPortfolio(row);
+        break;
       case CREATE_FUND:
         this.createFund(row);
         break;
@@ -152,6 +162,28 @@ public class UploadController {
 
     PersonController controller = new PersonController(pRepo);
     controller.save(person);
+  }
+
+  private void createPortfolio(Row row) {
+    Portfolio portfolio = new Portfolio();
+    portfolio.setName(PoiUtils.getStringFromCell(row, 1));
+
+    String master = PoiUtils.getStringFromCell(row, 2);
+    if (!master.isEmpty()) {
+      Optional<Portfolio> mp = poRepo.findFirstByNameIgnoreCase(master);
+      if (mp.isPresent()) {
+        portfolio.setMaster(mp.get());
+      }
+    }
+
+    portfolio.setQuotes(PoiUtils.getNumberFromCell(row, 3));
+    portfolio.setQuoteValue(PoiUtils.getNumberFromCell(row, 4));
+    portfolio.setQuoteValueDate(PoiUtils.getDateFromCell(row, 5));
+    portfolio.setQuoteValueBenchmark(PoiUtils.getNumberFromCell(row, 6));
+    portfolio.setValue(portfolio.getQuotes().multiply(portfolio.getQuoteValue(), Utils.DEFAULT_MATHCONTEXT));
+
+    PortfolioController controller = new PortfolioController(poRepo);
+    controller.save(portfolio);
   }
 
   private void createFund(Row row) {
@@ -202,7 +234,7 @@ public class UploadController {
     quote.setQuoteDate(PoiUtils.getDateFromCell(row, 2));
     quote.setQuoteValue(PoiUtils.getNumberFromCell(row, 3));
 
-    FundQuotesController controller = new FundQuotesController(fqRepo);
+    QuoteController controller = new QuoteController(fqRepo);
     controller.save(quote);
   }
 

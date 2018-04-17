@@ -1,5 +1,6 @@
 package br.com.rcrios.smartportfolio.controller;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -91,5 +92,16 @@ public class PersonController {
       return result.get();
     }
     return null;
+  }
+
+  /**
+   * Retrieves all persisted persons.
+   * 
+   * @return A list of Persons.
+   */
+  @GetMapping("/")
+  public List<Person> getAll() {
+    LOGGER.debug("Retrieving all persons from repository");
+    return repo.findAll();
   }
 }

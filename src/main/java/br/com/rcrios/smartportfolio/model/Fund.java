@@ -15,6 +15,12 @@ import javax.persistence.TemporalType;
 
 import br.com.rcrios.smartportfolio.SmartPortfolioRuntimeException;
 
+/**
+ * Collective investment vehicles may be formed under company law, by legal trust or by statute. The nature of the vehicle and its limitations are often linked
+ * to its constitutional nature and the associated tax rules for the type of structure within a given jurisdiction. Is a way of investing money alongside other
+ * investors in order to benefit from the inherent advantages of working as part of a group.
+ *
+ */
 @Entity
 public class Fund implements Serializable {
 
