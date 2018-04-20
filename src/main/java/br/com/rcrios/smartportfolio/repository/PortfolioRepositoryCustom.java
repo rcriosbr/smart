@@ -12,9 +12,8 @@ import br.com.rcrios.smartportfolio.model.Portfolio;
 public interface PortfolioRepositoryCustom {
 
   /**
-   * Overrides default save method from JpaRepository. The custom implementation,
-   * besides saving the entity, will also update master portfolios that are
-   * attached to the portfolio being saved.
+   * Overrides default save method from JpaRepository. The custom implementation, besides saving the entity, will also update master portfolios that are attached
+   * to the portfolio being saved.
    * 
    * @param portfolio
    *          Entity that will be persisted.
@@ -24,4 +23,8 @@ public interface PortfolioRepositoryCustom {
   Portfolio save(Portfolio portfolio);
 
   List<Portfolio> update(Fund fund, Deal deal);
+
+  void attachFund(Portfolio portfolio, Fund fund);
+
+  List<Portfolio> getSecondLevelPortfolios();
 }

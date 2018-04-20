@@ -153,7 +153,7 @@ public class DealControllerTest {
     DealController controller = new DealController(repo);
     ResponseEntity<Object> response = controller.save(deal);
 
-    assertTrue(HttpStatus.INTERNAL_SERVER_ERROR.equals(response.getStatusCode()));
+    assertTrue(HttpStatus.PRECONDITION_FAILED.equals(response.getStatusCode()));
   }
 
   @Test

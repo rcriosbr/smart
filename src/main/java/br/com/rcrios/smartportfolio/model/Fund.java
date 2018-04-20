@@ -80,6 +80,15 @@ public class Fund implements Serializable {
     Person.validate(toBeValidated.getTrustee());
   }
 
+  public boolean isValid() {
+    try {
+      Fund.validate(this);
+    } catch (SmartPortfolioRuntimeException e) {
+      return false;
+    }
+    return true;
+  }
+
   public Long getId() {
     return id;
   }

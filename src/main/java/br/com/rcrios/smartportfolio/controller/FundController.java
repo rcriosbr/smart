@@ -76,4 +76,9 @@ public class FundController {
     LOGGER.debug("Retrieving all funds from repository");
     return repo.findAll();
   }
+
+  @GetMapping("/count")
+  public long countAll() {
+    return repo.count();
+  }
 }

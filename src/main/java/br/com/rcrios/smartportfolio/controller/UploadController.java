@@ -164,6 +164,13 @@ public class UploadController {
     controller.save(person);
   }
 
+  /**
+   * Creates a new Portfolio and save it using {@linkplain PortfolioController#save(Portfolio)}.
+   * 
+   * @param row
+   *          Excel spreadsheet row from which data will be retrieved. Portfolio's name will be retrieved from column B. Master portfolio from C, quotes from D,
+   *          quote value from E, quote date from F and benchmark value from G.
+   */
   private void createPortfolio(Row row) {
     Portfolio portfolio = new Portfolio();
     portfolio.setName(PoiUtils.getStringFromCell(row, 1));
@@ -200,6 +207,12 @@ public class UploadController {
       throw new SmartPortfolioRuntimeException("Could not locate fund manager and/or trustee. Impossible to create fund.");
     }
 
+    PortfolioController poController = new PortfolioController(poRepo);
+    Portfolio portfolio = poController.getbyName(PoiUtils.getStringFromCell(row, 9));
+    if (portfolio == null) {
+      throw new SmartPortfolioRuntimeException("Could not locate portfolio. Impossible to create fund.");
+    }
+
     Person fundPerson = new Person();
     fundPerson.setName(PoiUtils.getStringFromCell(row, 1));
     fundPerson.setNickname(PoiUtils.getStringFromCell(row, 2));
@@ -213,10 +226,18 @@ public class UploadController {
 
     fund.setFund((Person) response.getBody());
     fund.setQuotes(PoiUtils.getNumberFromCell(row, 7));
+    fund.setLastUpdated(PoiUtils.getDateFromCell(row, 8));
     fund.setValue(BigDecimal.ZERO);
 
     FundController controller = new FundController(fRepo);
-    controller.save(fund);
+    response = controller.save(fund);
+    if (response.getStatusCode() != HttpStatus.OK) {
+      throw new SmartPortfolioRuntimeException("Could not create " + fund);
+    }
+
+    LOGGER.debug("Adding fund '{}' to portfolio '{}'", fund.getFund().getName(), portfolio.getName());
+    portfolio.add(fund);
+    poRepo.save(portfolio);
   }
 
   private void createQuote(Row row) {
@@ -226,7 +247,7 @@ public class UploadController {
     Fund fund = fController.getFund(cellContent);
 
     if (fund == null) {
-      throw new SmartPortfolioRuntimeException("Could not locate fund '" + cellContent + "'. Impossible to contiue.");
+      throw new SmartPortfolioRuntimeException("Could not locate fund '" + cellContent + "'. Impossible to continue.");
     }
 
     FundQuotes quote = new FundQuotes();

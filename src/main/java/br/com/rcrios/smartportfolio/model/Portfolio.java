@@ -2,6 +2,7 @@ package br.com.rcrios.smartportfolio.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -15,8 +16,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import org.springframework.lang.NonNull;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 @Entity
 public class Portfolio implements Serializable {
@@ -50,6 +54,20 @@ public class Portfolio implements Serializable {
 
   @Column(precision = 16, scale = 6, nullable = false)
   private BigDecimal quoteValueBenchmark;
+
+  @JsonInclude()
+  @Transient
+  private PortfolioFacts facts;
+
+  public boolean add(Fund fund) {
+    if (fund.isValid()) {
+      if (this.funds == null) {
+        this.funds = new ArrayList<>();
+      }
+      this.funds.add(fund);
+    }
+    return false;
+  }
 
   public Long getId() {
     return id;
@@ -121,6 +139,14 @@ public class Portfolio implements Serializable {
 
   public void setQuoteValueBenchmark(BigDecimal quoteValueBenchmark) {
     this.quoteValueBenchmark = quoteValueBenchmark;
+  }
+
+  public PortfolioFacts getFacts() {
+    return facts;
+  }
+
+  public void setFacts(PortfolioFacts facts) {
+    this.facts = facts;
   }
 
   @Override

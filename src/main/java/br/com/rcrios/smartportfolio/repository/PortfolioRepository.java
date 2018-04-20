@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import br.com.rcrios.smartportfolio.model.Portfolio;
@@ -13,4 +14,7 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long>, Por
   List<Portfolio> findByFundsId(Long fundId);
 
   Optional<Portfolio> findFirstByNameIgnoreCase(String name);
+
+  @Query("SELECT p FROM Portfolio p WHERE p.master = null")
+  Optional<Portfolio> getRootPortfolio();
 }

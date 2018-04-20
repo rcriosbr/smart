@@ -68,6 +68,24 @@ public class QuoteController {
   }
 
   /**
+   * Retrieves a quote by its fundId and date.
+   * 
+   * @param id
+   * 
+   * @return A QUote with the provided id and date, or NULL if the provided arguments does not exist.
+   */
+  @GetMapping("/fund/{id}")
+  public FundQuotes getByFundNtpidAndQuoteDate(@PathVariable("id") String id, @RequestParam("date") @DateTimeFormat(pattern = "ddMMyyyy") Date date) {
+    LOGGER.debug("Searching repository for a quote with ntpid '{}' and date '{}'", id, date);
+
+    Optional<FundQuotes> result = repo.findByFundFundNationalTaxPayerIdAndQuoteDate(id, date);
+    if (result.isPresent()) {
+      return result.get();
+    }
+    return null;
+  }
+
+  /**
    * Retrieves all persisted deals.
    * 
    * @return A list of Deals.

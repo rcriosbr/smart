@@ -66,4 +66,11 @@ public final class Utils {
       return null;
     }
   }
+
+  public static boolean isNonZero(BigDecimal number) {
+    if (number != null && !(number.compareTo(BigDecimal.ZERO) == 0)) {
+      return true;
+    }
+    return false;
+  }
 }

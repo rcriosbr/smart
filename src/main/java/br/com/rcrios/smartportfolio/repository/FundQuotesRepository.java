@@ -11,5 +11,7 @@ import br.com.rcrios.smartportfolio.model.FundQuotes;
 @Repository
 public interface FundQuotesRepository extends JpaRepository<FundQuotes, Long>, FundQuotesRepositoryCustom {
 
-  public Optional<FundQuotes> findByFundIdAndQuoteDate(Long fundId, Date quoteDate);
+  Optional<FundQuotes> findByFundIdAndQuoteDate(Long fundId, Date quoteDate);
+
+  Optional<FundQuotes> findByFundFundNationalTaxPayerIdAndQuoteDate(String ntpid, Date quoteDate);
 }

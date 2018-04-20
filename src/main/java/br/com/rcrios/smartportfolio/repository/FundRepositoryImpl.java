@@ -20,7 +20,7 @@ public class FundRepositoryImpl implements FundRepositoryCustom {
   FundRepository repo;
 
   @Autowired
-  PortfolioRepository prepo;
+  PortfolioRepository portfolioRepository;
 
   private Deal deal;
 
@@ -35,7 +35,7 @@ public class FundRepositoryImpl implements FundRepositoryCustom {
     Fund savedFund = repo.saveAndFlush(fund);
     LOGGER.debug("Saved {}", savedFund);
 
-    prepo.update(savedFund, this.deal);
+    portfolioRepository.update(savedFund, this.deal);
 
     return savedFund;
   }
